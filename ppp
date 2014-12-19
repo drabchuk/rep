@@ -1,0 +1,50 @@
+<?php
+error_reporting(0);
+session_start(); 
+?>
+<?
+$login = $_POST['login'];
+$pass = $_POST['pass'];
+$fp = fopen("users.txt", "r");
+if($fp) { 
+flock($fp, LOCK_EX); 
+}
+else {
+echo "Помилка при відкритті файлу<br><a href='../pages/registration.php'>Назад</a>"; 
+}
+
+while(!feof($fp)) {
+$log = '';
+$log1 = fgets($fp);
+$n = strpos($log1, ':');
+for ($i=0;$i<$n;$i++)
+{
+$log = $log.$log1[$i];
+}
+if($log == $login) {
+$n = strpos($log1, ':');
+$k = strpos($log1, '=');
+for ($i=$n+1;$i<$k;$i++)
+{
+$password = $password.$log1[$i];
+if ($password == $pass)
+{
+$_SESSION['name'] = $login;
+$n = strpos($log1, '-');
+$k = strpos($log1, '*');
+for($i = $n+1;$i <= $k-1;$i++)
+$_SESSION['status'] = $_SESSION['status'].$log1[$i];
+$url = '/orangejs/index.php';
+echo "Ви успішно увійшли<br><a href='../index.php'>Назад</a>";
+flock($fp, LOCK_UN);
+fclose($fp);
+exit;
+}
+}
+}
+
+}
+echo 'Не вірний логін або пароль<br><a href="../index.php">Назад</a>';
+flock($fp, LOCK_UN);
+fclose($fp);
+?>
